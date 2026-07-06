@@ -1,5 +1,13 @@
 <?php
 
+// أضف هذه الأسطر الثلاثة هنا فوراً:
+interface_exists('Throwable');
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// ... باقي الكود الأصلي للملف يترك كما هو دون تغيير ...
+
 use Illuminate\Foundation\Application;
 use Illuminate\Http\Request;
 
