@@ -3,5 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PagesController;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider or the bootstrap/app.php
+| file depending on your Laravel version. Now create something great!
+|
+*/
 
-Route::get('/', [PagesController::class, 'index'])->name('index');
+// المسار الرئيسي للموقع الذي يوجه إلى دالة index داخل PagesController
+Route::get('/', [PagesController::class, 'index']);
