@@ -37,13 +37,10 @@ RUN mkdir -p database storage bootstrap/cache \
 # نسخ ملف إعدادات Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# تعديل إعدادات PHP-FPM ليعمل عبر سيلان داخلي (Socket) بدلاً من البورت 9000
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.owner = www-data/listen.owner = www-data/g' /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's/;listen.group = www-data/listen.group = www-data/g' /usr/local/etc/php-fpm.d/www.conf
+## التأكد من وجود المجلد المخصص للـ Sockets وضبط صلاحياته مسبقاً
+RUN mkdir -p /var/run && chown -R www-data:www-data /var/run
 
 EXPOSE 80
 
-# تشغيل الـ Migrations والـ Services
-# تشغيل الـ Migrations وضبط صلاحيات المجلدات وملف الـ Socket فور إنشائه ثم تشغيل الـ Services
-CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && sleep 1 && chown www-data:www-data /var/run/php-fpm.sock && chmod 660 /var/run/php-fpm.sock && nginx -g 'daemon off;'"
+# تشغيل الـ Migrations ثم تشغيل الخدمات بشكل متوازي ومستقر
+CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && while [ ! -e /var/run/php-fpm.sock ]; do sleep 0.1; done && chown www-data:www-data /var/run/php-fpm.sock && chmod 660 /var/run/php-fpm.sock && nginx -g 'daemon off;'"
