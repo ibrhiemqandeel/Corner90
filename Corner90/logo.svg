@@ -1,0 +1,8 @@
+<svg viewBox="0 0 340 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Corner90 logo">
+  <!-- corner-kick mark: pitch corner, arc, and the ball on the arc -->
+  <path d="M8 15 L8 85 L78 85" fill="none" stroke="#3A4A42" stroke-width="3" stroke-linecap="round"/>
+  <path d="M48 85 A 40 40 0 0 1 8 45" fill="none" stroke="#2F7A4D" stroke-width="3"/>
+  <circle cx="36" cy="57" r="4.5" fill="#FFB020"/>
+
+  <text x="94" y="64" style="font-family:'Oswald','Arial Narrow',sans-serif;font-weight:600;font-size:34px;fill:#F2F5F3;letter-spacing:1px;">CORNER<tspan style="font-weight:700;fill:#45A968;">90</tspan></text>
+</svg>
