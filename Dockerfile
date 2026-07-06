@@ -43,4 +43,5 @@ EXPOSE 80
 
 # تشغيل Nginx و PHP-FPM معاً عند بدء الحاوية
 # تشغيل الـ Migrations تلقائياً ثم تشغيل السيرفر
-CMD sh -c "php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
+# إنشاء ملف قاعدة البيانات، إعطاء الصلاحيات، تشغيل الـ Migrations ثم تشغيل السيرفر
+CMD sh -c "mkdir -p database && touch database/database.sqlite && chown -R www-data:www-data database storage bootstrap/cache && chmod -R 775 database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
