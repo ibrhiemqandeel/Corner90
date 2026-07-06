@@ -42,4 +42,5 @@ COPY ./nginx.conf /etc/nginx/nginx.conf
 EXPOSE 80
 
 # تشغيل Nginx و PHP-FPM معاً عند بدء الحاوية
-CMD sh -c "php-fpm -D && nginx -g 'daemon off;'"
+# تشغيل الـ Migrations تلقائياً ثم تشغيل السيرفر
+CMD sh -c "php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
