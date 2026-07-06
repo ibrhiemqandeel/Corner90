@@ -1,7 +1,6 @@
-# استخدام نسخة PHP رسمية مجهزة بـ FPM و Alpine لخفة الحجم
-FROM php:8.2-fpm-alpine
+FROM php:8.3-fpm-alpine
 
-# تثبيت الإضافات الأساسية لـ Laravel و Nginx
+# تثبيت الإضافات الأساسية للنظام ولارافل
 RUN apk add --no-cache \
     nginx \
     shadow \
@@ -15,33 +14,30 @@ RUN apk add --no-cache \
     bash \
     oniguruma-dev
 
-# تثبيت إضافات PHP لـ MySQL وقواعد البيانات
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
+    && docker-php-ext-install -j$(nproc) gd pdo pdo_mysql mbstring zip exif pcntl
 
-# تثبيت Composer
+# نسخ الـ Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# تحديد مجلد العمل
 WORKDIR /var/www/html
 
-# نسخ ملفات المشروع
+# نسخ ملفات المشروع بالكامل
 COPY . .
 
-# تثبيت حزم Composer للمشروع
-RUN composer install --no-interaction --optimize-autoloader --no-dev
+# تثبيت حزم الـ Composer مع تحسين الـ Autoload
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# إعداد صلاحيات المجلدات لتجنب مشاكل Render (مهم جداً لـ Laravel)
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# تهيئة مجلد قاعدة البيانات وصلاحيات المجلدات الحيوية للمستخدم الصحيح
+RUN mkdir -p database storage bootstrap/cache \
+    && touch database/database.sqlite \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache database
 
-# نسخ إعدادات Nginx
+# نسخ ملف إعدادات Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# منفذ التشغيل الذي تحتاجه Render
 EXPOSE 80
 
-# تشغيل Nginx و PHP-FPM معاً عند بدء الحاوية
-# تشغيل الـ Migrations تلقائياً ثم تشغيل السيرفر
-# إنشاء ملف قاعدة البيانات، إعطاء الصلاحيات، تشغيل الـ Migrations ثم تشغيل السيرفر
-CMD sh -c "mkdir -p database && touch database/database.sqlite && chown -R www-data:www-data database storage bootstrap/cache && chmod -R 775 database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
+# تشغيل الـ Migrations وضمان بقاء الصلاحيات سليمة ثم تشغيل السيرفر
+CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
