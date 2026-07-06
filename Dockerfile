@@ -25,10 +25,10 @@ WORKDIR /var/www/html
 # نسخ ملفات المشروع بالكامل
 COPY . .
 
-# تثبيت حزم الـ Composer مع تحسين الـ Autoload
+# تثبيت حزم الـ Composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# تهيئة مجلد قاعدة البيانات وصلاحيات المجلدات الحيوية للمستخدم الصحيح
+# تهيئة مجلد قاعدة البيانات وصلاحيات المجلدات الحيوية
 RUN mkdir -p database storage bootstrap/cache \
     && touch database/database.sqlite \
     && chown -R www-data:www-data /var/www/html \
@@ -37,7 +37,12 @@ RUN mkdir -p database storage bootstrap/cache \
 # نسخ ملف إعدادات Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
+# تعديل إعدادات PHP-FPM ليعمل عبر سيلان داخلي (Socket) بدلاً من البورت 9000
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/;listen.owner = www-data/listen.owner = www-data/g' /usr/local/etc/php-fpm.d/www.conf \
+    && sed -i 's/;listen.group = www-data/listen.group = www-data/g' /usr/local/etc/php-fpm.d/www.conf
+
 EXPOSE 80
 
-# تشغيل الـ Migrations وضمان بقاء الصلاحيات سليمة ثم تشغيل السيرفر
+# تشغيل الـ Migrations والـ Services
 CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
