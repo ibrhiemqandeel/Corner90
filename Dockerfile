@@ -45,4 +45,5 @@ RUN sed -i 's/listen = 127.0.0.1:9000/listen = \/var\/run\/php-fpm.sock/g' /usr/
 EXPOSE 80
 
 # تشغيل الـ Migrations والـ Services
-CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"
+# تشغيل الـ Migrations وضبط صلاحيات المجلدات وملف الـ Socket فور إنشائه ثم تشغيل الـ Services
+CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && sleep 1 && chown www-data:www-data /var/run/php-fpm.sock && chmod 660 /var/run/php-fpm.sock && nginx -g 'daemon off;'"
