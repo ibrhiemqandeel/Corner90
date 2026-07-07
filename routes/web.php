@@ -15,4 +15,9 @@ use App\Http\Controllers\PagesController;
 */
 
 // المسار الرئيسي للموقع الذي يوجه إلى دالة index داخل PagesController
-Route::get('/', [PagesController::class, 'index']);
+Route::get('/', [PagesController::class, 'index'])->name('index');
+Route::get('article', [PagesController::class, 'article'])->name('article');;
+Route::get('fixtures', [PagesController::class, 'fixtures'])->name('fixtures');;
+Route::get('match', [PagesController::class, 'match'])->name('match');;
+Route::get('news', [PagesController::class, 'news'])->name('news');;
+Route::get('standings', [PagesController::class, 'standings'])->name('standings');;

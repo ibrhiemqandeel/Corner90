@@ -28,7 +28,7 @@ COPY . .
 # تثبيت حزم الـ Composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# تهيئة مجلد قاعدة البيانات وصلاحيات المجلدات الحيوية
+# تهيئة مجلد قاعدة البيانات وصلاحيات المجلدات الحيوية المبدئية
 RUN mkdir -p database storage bootstrap/cache \
     && touch database/database.sqlite \
     && chown -R www-data:www-data /var/www/html \
