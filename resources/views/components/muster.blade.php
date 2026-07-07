@@ -7,7 +7,6 @@
     <title>Corner90 — Football News, Fixtures &amp; Live Scores</title>
     <meta name="description" content="Corner90 brings you live scores, fixtures, standings and breaking football news.">
     <link rel="stylesheet" href="{{ secure_asset('styles.css' ) }}">
-    <link rel="icon" type="image/svg" href="{{ asset('./logo_90.svg') }}">
 
 </head>
 
