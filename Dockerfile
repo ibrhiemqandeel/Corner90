@@ -37,20 +37,16 @@ RUN mkdir -p database storage bootstrap/cache \
 # نسخ ملف إعدادات Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# إصلاح Alpine: إنشاء مجلد الـ PID لـ Nginx ومجلد الـ Socket وتحديد المالك مسبقاً
-RUN mkdir -p /var/run /run/nginx \
-    && chown -R www-data:www-data /var/run /run/nginx
+# تهيئة مجلدات التشغيل لـ Nginx وضبط الصلاحيات للمستخدم www-data
+RUN mkdir -p /run/nginx && chown -R www-data:www-data /run/nginx
 
 EXPOSE 80
 
-# تشغيل الـ Migrations ثم تشغيل الخدمات والانتظار حتى تجهيز الـ socket
 # تشغيل الـ Migrations، اختبار الإعدادات، ثم تشغيل الخدمات ومراقبة المخرجات
 CMD sh -c " \
     chown -R www-data:www-data database storage bootstrap/cache && \
     php artisan migrate --force && \
     php-fpm -D && \
-    echo '==> Testing Nginx configuration...' && \
     nginx -t && \
-    echo '==> Starting Nginx...' && \
     nginx -g 'daemon off;' \
 "
