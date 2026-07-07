@@ -44,8 +44,12 @@ RUN mkdir -p /run/nginx && chown -R www-data:www-data /run/nginx \
 EXPOSE 80
 
 # تشغيل الـ Migrations أولاً، ثم إعادة ضبط الصلاحيات للمجلدات والملفات الناتجة عنها، ثم تشغيل الخدمات
+# تشغيل الـ Migrations، تنظيف كاش لارافل، اختبار الإعدادات، ثم الإقلاع
 CMD sh -c " \
     php artisan migrate --force && \
+    php artisan config:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
     chown -R www-data:www-data database storage bootstrap/cache && \
     chmod -R 775 database storage bootstrap/cache && \
     php-fpm -D && \
