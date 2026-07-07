@@ -37,15 +37,17 @@ RUN mkdir -p database storage bootstrap/cache \
 # نسخ ملف إعدادات Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-# تهيئة مجلدات التشغيل لـ Nginx وضبط الصلاحيات للمستخدم www-data
-RUN mkdir -p /run/nginx && chown -R www-data:www-data /run/nginx
+# تهيئة مجلدات التشغيل لـ Nginx وتعديل ضبط استماع PHP-FPM ليعمل عبر المنفذ 9000 بشكل قطعي
+RUN mkdir -p /run/nginx && chown -R www-data:www-data /run/nginx \
+    && sed -i 's/listen = .*/listen = 127.0.0.1:9000/' /usr/local/etc/php-fpm.d/www.conf
 
 EXPOSE 80
 
-# تشغيل الـ Migrations، اختبار الإعدادات، ثم تشغيل الخدمات ومراقبة المخرجات
+# تشغيل الـ Migrations أولاً، ثم إعادة ضبط الصلاحيات للمجلدات والملفات الناتجة عنها، ثم تشغيل الخدمات
 CMD sh -c " \
-    chown -R www-data:www-data database storage bootstrap/cache && \
     php artisan migrate --force && \
+    chown -R www-data:www-data database storage bootstrap/cache && \
+    chmod -R 775 database storage bootstrap/cache && \
     php-fpm -D && \
     nginx -t && \
     nginx -g 'daemon off;' \
