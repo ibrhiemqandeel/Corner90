@@ -44,12 +44,13 @@ RUN mkdir -p /var/run /run/nginx \
 EXPOSE 80
 
 # تشغيل الـ Migrations ثم تشغيل الخدمات والانتظار حتى تجهيز الـ socket
+# تشغيل الـ Migrations، اختبار الإعدادات، ثم تشغيل الخدمات ومراقبة المخرجات
 CMD sh -c " \
     chown -R www-data:www-data database storage bootstrap/cache && \
     php artisan migrate --force && \
     php-fpm -D && \
-    while [ ! -e /var/run/php-fpm.sock ]; do sleep 0.1; done && \
-    chown www-data:www-data /var/run/php-fpm.sock && \
-    chmod 660 /var/run/php-fpm.sock && \
+    echo '==> Testing Nginx configuration...' && \
+    nginx -t && \
+    echo '==> Starting Nginx...' && \
     nginx -g 'daemon off;' \
 "
