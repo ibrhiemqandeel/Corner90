@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corner90 — Football News, Fixtures &amp; Live Scores</title>
     <meta name="description" content="Corner90 brings you live scores, fixtures, standings and breaking football news.">
-    <link rel="stylesheet" href="{{ asset('styles.css') }}">
+    <link rel="stylesheet" href="{{ secure_asset('styles.css' ) }}">
 </head>
 
 <body>
