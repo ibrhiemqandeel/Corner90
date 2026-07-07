@@ -37,10 +37,19 @@ RUN mkdir -p database storage bootstrap/cache \
 # نسخ ملف إعدادات Nginx
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
-## التأكد من وجود المجلد المخصص للـ Sockets وضبط صلاحياته مسبقاً
-RUN mkdir -p /var/run && chown -R www-data:www-data /var/run
+# إصلاح Alpine: إنشاء مجلد الـ PID لـ Nginx ومجلد الـ Socket وتحديد المالك مسبقاً
+RUN mkdir -p /var/run /run/nginx \
+    && chown -R www-data:www-data /var/run /run/nginx
 
 EXPOSE 80
 
-# تشغيل الـ Migrations ثم تشغيل الخدمات بشكل متوازي ومستقر
-CMD sh -c "chown -R www-data:www-data database storage bootstrap/cache && php artisan migrate --force && php-fpm -D && while [ ! -e /var/run/php-fpm.sock ]; do sleep 0.1; done && chown www-data:www-data /var/run/php-fpm.sock && chmod 660 /var/run/php-fpm.sock && nginx -g 'daemon off;'"
+# تشغيل الـ Migrations ثم تشغيل الخدمات والانتظار حتى تجهيز الـ socket
+CMD sh -c " \
+    chown -R www-data:www-data database storage bootstrap/cache && \
+    php artisan migrate --force && \
+    php-fpm -D && \
+    while [ ! -e /var/run/php-fpm.sock ]; do sleep 0.1; done && \
+    chown www-data:www-data /var/run/php-fpm.sock && \
+    chmod 660 /var/run/php-fpm.sock && \
+    nginx -g 'daemon off;' \
+"
